@@ -13,7 +13,7 @@ ezButton button3(16);
 int a = 0; // display port counter
 int mode = 0; // digital clock mode
 long hour, minute, second; // variable to store clock detail
-long realtime = 3700; // main clock time
+long realtime = 0; // main clock time
 long mytime = 0; // clock setting time
 long alarm = 0; // alarm time
 long stopwatch = 0; // stopwatch time
@@ -81,12 +81,12 @@ void loop() {
 	// mode 1
   } else if (mode == 1) {
     PORTC = 0b00001000; // led 1 active
-    set_waktu(); // calculate clock setting parameter
+    set_waktu(set_waktu_arr, mytime_arr, mytime); // calculate clock setting parameter
     show_digit(mytime_arr);  // show digit for clock setting
 	// mode 2
   } else if (mode == 2) {
     PORTC = 0b00010000; // led 2 active
-    set_alarm(); // calculate alarm parameter
+    set_waktu(set_alarm_arr, alarm_arr, alarm); // calculate alarm parameter
     show_digit(alarm_arr);  // show digit for alarm
 	// mode 3
   } else {
@@ -129,7 +129,7 @@ void show_digit(int digit[6]) {
   }
 }
 
-void set_waktu() {
+void set_waktu(int set_arr[3], int arr[6], int param) {
 	
   // variable to store temporary value
   long set_hour, set_minute, set_second;
@@ -147,65 +147,25 @@ void set_waktu() {
     i = 60;
   }
   
-  // calculate clock setting parameter if button 3 is pressed
+  // calculate parameter if button 3 is pressed
   if (button3.isPressed() == HIGH) {
-    set_waktu_arr[button2_counter] = (set_waktu_arr[button2_counter] + 1)%i;
-    set_hour = (long)set_waktu_arr[2] * (long)3600;
-    set_minute = (long)set_waktu_arr[1] * (long)60;
-    set_second = (long)set_waktu_arr[0];
+    set_arr[button2_counter] = (set_arr[button2_counter] + 1)%i;
+    set_hour = (long)set_arr[2] * (long)3600;
+    set_minute = (long)set_arr[1] * (long)60;
+    set_second = (long)set_arr[0];
 
-    mytime = (long)set_hour + (long)set_minute + (long)set_second;
+    param = (long)set_hour + (long)set_minute + (long)set_second;
 
-    hour = ((long)mytime/(long)3600)%(long)24;
-    minute = ((long)mytime/(long)60)%(long)60;
-    second = (long)mytime%(long)60;
+    hour = ((long)param/(long)3600)%(long)24;
+    minute = ((long)param/(long)60)%(long)60;
+    second = (long)param%(long)60;
 
-    mytime_arr[0] = (second%10);
-    mytime_arr[1] = (second/10);
-    mytime_arr[2] = (minute%10);
-    mytime_arr[3] = (minute/10);
-    mytime_arr[4] = (hour%10);
-    mytime_arr[5] = (hour/10);
-  }
-}
-
-void set_alarm() {
-  
-  // variable to store temporary value
-  long set_hour, set_minute, set_second;
-  int i;
-
-  // increment variable if button 2 is pressed
-  if (button2.isPressed() == HIGH) {
-    button2_counter++;
-    button2_counter %= 3;
-  }
-  
-  if (button2_counter == 2) {
-    i = 24;
-  } else {
-    i = 60;
-  }
-  
-  // calculate alarm parameter if button 3 is pressed
-  if (button3.isPressed() == HIGH) {
-    set_alarm_arr[button2_counter] = (set_alarm_arr[button2_counter] + 1)%i;
-    set_hour = (long)set_alarm_arr[2] * (long)3600;
-    set_minute = (long)set_alarm_arr[1] * (long)60;
-    set_second = (long)set_alarm_arr[0];
-
-    alarm = set_hour + set_minute + set_second;
-
-    hour = (long)(alarm/3600)%24;
-    minute = (long)(alarm/60)%60;
-    second = (long)alarm%60;
-
-    alarm_arr[0] = (second%10);
-    alarm_arr[1] = (second/10);
-    alarm_arr[2] = (minute%10);
-    alarm_arr[3] = (minute/10);
-    alarm_arr[4] = (hour%10);
-    alarm_arr[5] = (hour/10);
+    arr[0] = (second%10);
+    arr[1] = (second/10);
+    arr[2] = (minute%10);
+    arr[3] = (minute/10);
+    arr[4] = (hour%10);
+    arr[5] = (hour/10);
   }
 }
 
